@@ -50,6 +50,7 @@ namespace SolarEnergyApi.Domain.Services
 
         public Plant? GetById(int id)
         {
+            var plant = _context.Plants.Include(plant => plant.Generations).FirstOrDefault(x => x.Id == id);
             return _context.Plants
                 .Include(plant => plant.Generations)
                 .SingleOrDefault(p => p.Id == id);

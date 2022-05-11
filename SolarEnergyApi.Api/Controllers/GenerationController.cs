@@ -24,15 +24,17 @@ namespace SolarPlant.API.Controllers
         [HttpPost]
         public IActionResult Post(int id, AddGeneration model)
         {
-            var plant = _plantService.GetById(id);
-            if (plant == null)
+            try
             {
-                return NotFound();
+                var plant = _plantService.GetById(id);
+                var generation = new Generation(model.Date, model.GeneratePower, id);
+                _generationService.AddGeneration(generation);
+                return NoContent();
             }
-
-            var generation = new Generation(model.Date, model.GeneratePower, id);
-            _generationService.AddGeneration(generation);
-            return NoContent();
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [Route("api/plant/generations-last-12-months")]

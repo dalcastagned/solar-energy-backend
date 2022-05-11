@@ -13,7 +13,12 @@ namespace SolarEnergyApi.Domain.Services
 
         public object GetAll(int page, int pageSize, string? filter, bool? active) => _plantRepository.GetAll(page, pageSize, filter, active);
 
-        public Plant? GetById(int id) => _plantRepository.GetById(id);
+        public Plant? GetById(int id)
+        {
+            var plant = _plantRepository.GetById(id);
+            if (plant is null) throw new KeyNotFoundException("Planta não encontrada");
+            return plant;
+        }
         
         public void Delete(Plant plant) => _plantRepository.Delete(plant);
 

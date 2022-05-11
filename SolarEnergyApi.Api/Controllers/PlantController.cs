@@ -18,21 +18,20 @@ namespace SolarPlant.API.Controllers
         }
 
         [HttpGet()]
-        public IActionResult GetAll(int page, string? filter, Boolean? active)
-        {
-            var plants = _plantService.GetAll(page, 10, filter, active);
-            return Ok(plants);
-        }
-
+        public IActionResult GetAll(int page, string? filter, Boolean? active) => Ok(_plantService.GetAll(page, 10, filter, active));
+       
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var plant = _plantService.GetById(id);
-            if (plant == null)
+            try
             {
-                return NotFound();
+                var plant = _plantService.GetById(id);
+                return Ok(plant);
             }
-            return Ok(plant);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -53,26 +52,32 @@ namespace SolarPlant.API.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, UpdatePlant model)
         {
-            var plant = _plantService.GetById(id);
-            if (plant == null)
+            try
             {
-                return NotFound();
+                var plant = _plantService.GetById(id);
+                plant.Update(model.Nickname, model.Place, model.Brand, model.Model, model.Active);
+                _plantService.Update();
+                return NoContent();
             }
-            plant.Update(model.Nickname, model.Place, model.Brand, model.Model, model.Active);
-            _plantService.Update();
-            return NoContent();
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var plant = _plantService.GetById(id);
-            if (plant == null)
+            try
             {
-                return NotFound();
+                var plant = _plantService.GetById(id);
+                _plantService.Delete(plant);
+                return NoContent();
             }
-            _plantService.Delete(plant);
-            return NoContent();
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }
