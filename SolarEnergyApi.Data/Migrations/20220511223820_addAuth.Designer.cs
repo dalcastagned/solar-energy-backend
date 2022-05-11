@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SolarEnergyApi.Data.Context;
 
@@ -11,9 +12,10 @@ using SolarEnergyApi.Data.Context;
 namespace SolarEnergyApi.Data.Migrations
 {
     [DbContext(typeof(SolarPlantContext))]
-    partial class SolarPlantContextModelSnapshot : ModelSnapshot
+    [Migration("20220511223820_addAuth")]
+    partial class addAuth
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
