@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SolarEnergyApi.Data.Dtos;
+using SolarEnergyApi.Domain.Dtos;
 using SolarEnergyApi.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -33,6 +33,7 @@ namespace SolarPlants.API.Controllers
         }
 
         [HttpGet]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<IActionResult> GetUser(ReadUser user)
         {
             return Ok(user);
@@ -77,7 +78,7 @@ namespace SolarPlants.API.Controllers
             }
             return Unauthorized();
         }
-        
+
         private async Task<string> GenerateJwt(User appUser)
         {
             var key = new SymmetricSecurityKey(

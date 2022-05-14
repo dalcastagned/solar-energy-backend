@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dtos\**" />
+    <EmbeddedResource Remove="Dtos\**" />
+    <None Remove="Dtos\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Canducci.Pagination" Version="2.1.2" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">

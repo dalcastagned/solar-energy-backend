@@ -2,7 +2,7 @@ namespace SolarPlant.API.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
-    using SolarEnergyApi.Data.Dtos;
+    using SolarEnergyApi.Domain.Dtos;
     using SolarEnergyApi.Domain.Entities;
     using SolarEnergyApi.Domain.Interfaces;
 
@@ -18,14 +18,14 @@ namespace SolarPlant.API.Controllers
         }
 
         [HttpGet()]
-        public IActionResult GetAll(int page, string? filter, Boolean? active) => Ok(_plantService.GetAll(page, 10, filter, active));
+        public async Task<IActionResult> GetAll(int page, int limit, string? filter, Boolean? active) => Ok(await _plantService.GetAll(page, limit, filter, active));
        
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             try
             {
-                var plant = _plantService.GetById(id);
+                var plant = await _plantService.GetById(id);
                 return Ok(plant);
             }
             catch (KeyNotFoundException ex)
@@ -33,9 +33,9 @@ namespace SolarPlant.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        
         [HttpPost]
-        public IActionResult Post(AddPlant model)
+        public async Task<IActionResult> Post(AddPlant model)
         {
             var plant = new Plant(
                 model.Nickname,
@@ -45,18 +45,18 @@ namespace SolarPlant.API.Controllers
                 model.Active
             );
 
-            _plantService.Add(plant);
+            await _plantService.Add(plant);
             return CreatedAtAction(nameof(GetById), new { id = plant.Id }, plant);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, UpdatePlant model)
+        public async Task<IActionResult> Put(int id, UpdatePlant model)
         {
             try
             {
-                var plant = _plantService.GetById(id);
-                plant.Update(model.Nickname, model.Place, model.Brand, model.Model, model.Active);
-                _plantService.Update();
+                var plant = await _plantService.GetById(id);
+                plant?.Update(model.Nickname, model.Place, model.Brand, model.Model, model.Active);
+                await _plantService.Update();
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -66,12 +66,12 @@ namespace SolarPlant.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var plant = _plantService.GetById(id);
-                _plantService.Delete(plant);
+                var plant = await _plantService.GetById(id);
+                await _plantService.Delete(plant);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

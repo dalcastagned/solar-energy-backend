@@ -4,7 +4,7 @@ namespace SolarEnergyApi.Domain.Interfaces
 {
     public interface IGenerationRepository
     {
-        void AddGeneration(Generation generation);
-        List<object> GetGenerationsByMonth(IEnumerable<string> months);
+        Task AddGeneration(Generation generation);
+        Task<IEnumerable<object>> GetGenerationsByMonth(IEnumerable<string> months);
     }
 }

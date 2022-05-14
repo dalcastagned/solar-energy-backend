@@ -14,21 +14,21 @@ namespace SolarEnergyApi.Domain.Services
             _context = context;
         }
 
-        public void AddGeneration(Generation generation)
+        public async Task AddGeneration(Generation generation)
         {
             _context.Generations.Add(generation);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public List<object> GetGenerationsByMonth(IEnumerable<string> months)
+        public async Task<IEnumerable<object>> GetGenerationsByMonth(IEnumerable<string> months)
         {
-            List<Generation> generations = _context.Generations
+            var generations = await _context.Generations
                 .Where(g => g.Date >= DateTimeOffset.Now.AddMonths(-12))
-                .ToList();
-            List<object> result = new List<object>();
+                .ToListAsync();
+            var result = new List<object>();
             foreach (var month in months)
             {
-                List<Generation> monthGenerations = generations
+                var monthGenerations = generations
                     .Where(g => g.Date.ToString("MM/yy") == month)
                     .ToList();
                 double sum = 0.0;

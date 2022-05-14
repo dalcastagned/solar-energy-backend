@@ -12,8 +12,8 @@ namespace SolarEnergyApi.Domain.Services
             _generationRepository = generationRepository;
         }
 
-        public void AddGeneration(Generation generation) => _generationRepository.AddGeneration(generation);
+        public async Task AddGeneration(Generation generation) => await _generationRepository.AddGeneration(generation);
         
-        public List<object> GetGenerationsByMonth(IEnumerable<string> months) => _generationRepository.GetGenerationsByMonth(months);
+        public async Task<IEnumerable<object>> GetGenerationsByMonth(IEnumerable<string> months) => await _generationRepository.GetGenerationsByMonth(months);
     }
 }

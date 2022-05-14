@@ -1,7 +1,7 @@
 using Canducci.Pagination;
 using Microsoft.EntityFrameworkCore;
 using SolarEnergyApi.Data.Context;
-using SolarEnergyApi.Data.Dtos;
+using SolarEnergyApi.Domain.Dtos;
 using SolarEnergyApi.Domain.Entities;
 using SolarEnergyApi.Domain.Interfaces;
 
@@ -16,55 +16,51 @@ namespace SolarEnergyApi.Domain.Services
             _context = context;
         }
 
-        public void Add(Plant plant)
+        public async Task Add(Plant plant)
         {
             _context.Plants.Add(plant);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public object GetAll(int page, int pageSize, string? filter, bool? active)
+        public async Task<ReadPlants> GetAll(int page, int limit, string? filter, bool? active)
         {
-            var plants = _context.Plants.Include(plant => plant.Generations).AsQueryable();
+            if (page == 0)
+                page = 1;
+            if (limit == 0)
+                limit = int.MaxValue;
 
-            if (active != null)
-            {
-                plants = plants.Where(plant => plant.Active == active);
-            }
-            if (!string.IsNullOrEmpty(filter))
-                plants = plants.Where(
+            var plants = await _context.Plants
+                .Include(x => x.Generations)
+                .Where(x => active == null || x.Active == active)
+                .Where(
                     x =>
-                        x.Nickname.ToUpper().Contains(filter.ToUpper())
-                        || x.Brand.ToUpper().Contains(filter.ToUpper())
-                        || x.Model.ToUpper().Contains(filter.ToUpper())
-                        || x.Place.ToUpper().Contains(filter.ToUpper())
-                );
-            if (page != 0)
-            {
-                return new ReadPlants(plants.ToPaginatedRestAsync(page, pageSize));
-            }
-            else
-            {
-                return new { plants = plants.ToList() };
-            }
+                        string.IsNullOrEmpty(filter)
+                        || x.Nickname.ToUpper().Contains(filter)
+                        || x.Brand.ToUpper().Contains(filter)
+                        || x.Model.ToUpper().Contains(filter)
+                        || x.Place.ToUpper().Contains(filter)
+                )
+                .ToPaginatedRestAsync(page, limit);
+
+            return new ReadPlants(plants);
         }
 
-        public Plant? GetById(int id)
+        public async Task<Plant?> GetById(int id)
         {
-            var plant = _context.Plants.Include(plant => plant.Generations).FirstOrDefault(x => x.Id == id);
-            return _context.Plants
+            return await _context.Plants
                 .Include(plant => plant.Generations)
-                .SingleOrDefault(p => p.Id == id);
+                .SingleOrDefaultAsync(p => p.Id == id);
         }
 
-        public void Delete(Plant plant)
+        public async Task Delete(Plant plant)
         {
             _context.Plants.Remove(plant);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Update()
+        public async Task Update()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -1,7 +1,7 @@
 namespace SolarPlant.API.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
-    using SolarEnergyApi.Data.Dtos;
+    using SolarEnergyApi.Domain.Dtos;
     using SolarEnergyApi.Domain.Entities;
     using SolarEnergyApi.Domain.Interfaces;
 
@@ -22,13 +22,13 @@ namespace SolarPlant.API.Controllers
 
         [Route("api/plant/{id}/generation")]
         [HttpPost]
-        public IActionResult Post(int id, AddGeneration model)
+        public async Task<IActionResult> Post(int id, AddGeneration model)
         {
             try
             {
-                var plant = _plantService.GetById(id);
+                var plant = await _plantService.GetById(id);
                 var generation = new Generation(model.Date, model.GeneratePower, id);
-                _generationService.AddGeneration(generation);
+                await _generationService.AddGeneration(generation);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -39,12 +39,12 @@ namespace SolarPlant.API.Controllers
 
         [Route("api/plant/generations-last-12-months")]
         [HttpGet]
-        public IActionResult GetAllByLast12Months()
+        public async Task<IActionResult> GetAllByLast12Months()
         {
             IEnumerable<String> months = Enumerable
                 .Range(0, 12)
                 .Select(i => DateTimeOffset.Now.AddMonths(-i).ToString("MM/yy"));
-            List<Object> generations = _generationService.GetGenerationsByMonth(months);
+            IEnumerable<Object> generations = await _generationService.GetGenerationsByMonth(months);
             return Ok(generations);
         }
     }
