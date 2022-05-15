@@ -101,6 +101,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(
     c =>
     {
+        c.EnableAnnotations();
         c.SwaggerDoc("v1", new OpenApiInfo
         {
             Title = "Solar Energy API",

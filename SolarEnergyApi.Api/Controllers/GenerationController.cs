@@ -4,6 +4,7 @@ namespace SolarPlant.API.Controllers
     using SolarEnergyApi.Domain.Dtos;
     using SolarEnergyApi.Domain.Entities;
     using SolarEnergyApi.Domain.Interfaces;
+    using Swashbuckle.AspNetCore.Annotations;
 
     [ApiController]
     public class GenerationController : ControllerBase
@@ -22,6 +23,27 @@ namespace SolarPlant.API.Controllers
 
         [Route("api/plant/{id}/generation")]
         [HttpPost]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status204NoContent,
+            description: "No Content"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status401Unauthorized,
+            description: "Unauthorized"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status404NotFound,
+            description: "Plant Not Found"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
+        [SwaggerOperation(
+            Summary = "Add Generation",
+            Description = "Add generation to plant"
+        )]
         public async Task<IActionResult> Post(int id, AddGeneration model)
         {
             try
@@ -39,6 +61,23 @@ namespace SolarPlant.API.Controllers
 
         [Route("api/plant/generations-last-12-months")]
         [HttpGet]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status200OK,
+            description: "Success"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status401Unauthorized,
+            description: "Unauthorized"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
+        [SwaggerOperation(
+            Summary = "Last 12 months generation",
+            Description = "Last 12 months generation for all plants"
+        )]
         public async Task<IActionResult> GetAllByLast12Months()
         {
             IEnumerable<String> months = Enumerable
