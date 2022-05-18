@@ -49,7 +49,7 @@ namespace SolarPlants.API.Controllers
             description: "Server Error"
         )]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
-        [SwaggerOperation(Summary = "Add new user", Description = "Add new user")]
+        [SwaggerOperation(Summary = "Add new user")]
         public async Task<IActionResult> PostUser(AddUser model)
         {
             var user = new User
@@ -81,7 +81,7 @@ namespace SolarPlants.API.Controllers
             description: "Server Error"
         )]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
-        [SwaggerOperation(Summary = "Login", Description = "Login")]
+        [SwaggerOperation(Summary = "Login")]
         public async Task<IActionResult> Login(Login login)
         {
             var user = await _userManager.FindByEmailAsync(login.Email);
@@ -110,6 +110,8 @@ namespace SolarPlants.API.Controllers
             statusCode: StatusCodes.Status500InternalServerError,
             description: "Server Error"
         )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
+        [SwaggerOperation(Summary = "Reset Password")]
         public async Task<IActionResult> ResetPassword(string user, string oldPassword, string newPassword)
         {
             var userToReset = await _userManager.FindByEmailAsync(user);
