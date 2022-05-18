@@ -42,23 +42,14 @@ namespace SolarPlants.API.Controllers
 
         [HttpPost("signup")]
         [AllowAnonymous]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status201Created,
-            description: "Created"
-        )]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status400BadRequest,
-            description: "Bad Request"
-        )]
+        [SwaggerResponse(statusCode: StatusCodes.Status201Created, description: "Created")]
+        [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, description: "Bad Request")]
         [SwaggerResponse(
             statusCode: StatusCodes.Status500InternalServerError,
             description: "Server Error"
         )]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
-        [SwaggerOperation(
-            Summary = "Add new user",
-            Description = "Add new user"
-        )]
+        [SwaggerOperation(Summary = "Add new user", Description = "Add new user")]
         public async Task<IActionResult> PostUser(AddUser model)
         {
             var user = new User
@@ -80,10 +71,7 @@ namespace SolarPlants.API.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status200OK,
-            description: "Success"
-        )]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, description: "Success")]
         [SwaggerResponse(
             statusCode: StatusCodes.Status401Unauthorized,
             description: "Unauthorized"
@@ -93,10 +81,7 @@ namespace SolarPlants.API.Controllers
             description: "Server Error"
         )]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
-        [SwaggerOperation(
-            Summary = "Login",
-            Description = "Login"
-        )]
+        [SwaggerOperation(Summary = "Login", Description = "Login")]
         public async Task<IActionResult> Login(Login login)
         {
             var user = await _userManager.FindByEmailAsync(login.Email);
@@ -114,6 +99,29 @@ namespace SolarPlants.API.Controllers
             return Unauthorized();
         }
 
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, description: "Success")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status400BadRequest,
+            description: "Bad Request"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        public async Task<IActionResult> ResetPassword(string user, string oldPassword, string newPassword)
+        {
+            var userToReset = await _userManager.FindByEmailAsync(user);
+            var result = await _userManager.ChangePasswordAsync(userToReset, oldPassword, newPassword);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+            return BadRequest(result.Errors);
+        }
+
         private async Task<string> GenerateJwt(User appUser)
         {
             var key = new SymmetricSecurityKey(
@@ -124,10 +132,8 @@ namespace SolarPlants.API.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, appUser.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, appUser.Email),
                 new Claim(ClaimTypes.NameIdentifier, appUser.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, appUser.UserName)
             };
 
             foreach (var role in roles)
