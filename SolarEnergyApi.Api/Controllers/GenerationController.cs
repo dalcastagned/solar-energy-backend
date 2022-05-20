@@ -6,6 +6,7 @@ namespace SolarPlant.API.Controllers
     using SolarEnergyApi.Domain.Interfaces;
     using Swashbuckle.AspNetCore.Annotations;
 
+    [Route("api/plant/{plantId}/generation")]
     [ApiController]
     public class GenerationController : ControllerBase
     {
@@ -21,8 +22,100 @@ namespace SolarPlant.API.Controllers
             _generationService = generationService;
         }
 
-        [Route("api/plant/{id}/generation")]
         [HttpPost]
+        [SwaggerResponse(statusCode: StatusCodes.Status204NoContent, description: "No Content")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status401Unauthorized,
+            description: "Unauthorized"
+        )]
+        [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, description: "Plant Not Found")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
+        [SwaggerOperation(Summary = "Add Generation", Description = "Add generation to plant")]
+        public async Task<IActionResult> Post(int plantId, AddGeneration model)
+        {
+            try
+            {
+                var plant = await _plantService.GetById(plantId);
+                var generation = new Generation(model.Date, model.GeneratePower, plantId);
+                await _generationService.Add(generation);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status200OK,
+            description: "Success",
+            type: typeof(IEnumerable<ReadGeneration>)
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status401Unauthorized,
+            description: "Unauthorized"
+        )]
+        [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, description: "Not Found")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
+        [SwaggerOperation(
+            Summary = "Get generations by plant id",
+            Description = "Get generations by plant id"
+        )]
+        public async Task<IActionResult> Get(int plantId)
+        {
+            try
+            {
+                var plant = await _plantService.GetById(plantId);
+                var generations = await _generationService.GetAll(plantId);
+                return Ok(generations);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet("{generationId}")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status200OK,
+            description: "Success",
+            type: typeof(ReadGeneration)
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status401Unauthorized,
+            description: "Unauthorized"
+        )]
+        [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, description: "Not Found")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
+        [SwaggerOperation(Summary = "Get generation by id", Description = "Get generation by id")]
+        public async Task<IActionResult> GetById(int plantId, int generationId)
+        {
+            try
+            {
+                var plant = await _plantService.GetById(plantId);
+                var generation = await _generationService.GetById(plantId, generationId);
+                return Ok(new ReadGeneration(generation));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpPut("{generationId}")]
         [SwaggerResponse(
             statusCode: StatusCodes.Status204NoContent,
             description: "No Content"
@@ -33,24 +126,25 @@ namespace SolarPlant.API.Controllers
         )]
         [SwaggerResponse(
             statusCode: StatusCodes.Status404NotFound,
-            description: "Plant Not Found"
+            description: "Not Found"
         )]
         [SwaggerResponse(
             statusCode: StatusCodes.Status500InternalServerError,
             description: "Server Error"
         )]
-        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Put))]
         [SwaggerOperation(
-            Summary = "Add Generation",
-            Description = "Add generation to plant"
+            Summary = "Update a specific generation",
+            Description = "Updates a specific generation with the given id"
         )]
-        public async Task<IActionResult> Post(int id, AddGeneration model)
+        public async Task<IActionResult> Put(int plantId, int generationId, UpdateGeneration model)
         {
             try
             {
-                var plant = await _plantService.GetById(id);
-                var generation = new Generation(model.Date, model.GeneratePower, id);
-                await _generationService.AddGeneration(generation);
+                var plant = await _plantService.GetById(plantId);
+                var generation = await _generationService.GetById(plantId, generationId);
+                generation.Update(model.Date, model.GeneratePower);
+                await _generationService.Update();
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -59,11 +153,49 @@ namespace SolarPlant.API.Controllers
             }
         }
 
-        [Route("api/plant/generations-last-12-months")]
-        [HttpGet]
+        [HttpDelete("{generationId}")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status204NoContent,
+            description: "No Content"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status401Unauthorized,
+            description: "Unauthorized"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status404NotFound,
+            description: "Not Found"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Delete))]
+        [SwaggerOperation(
+            Summary = "Delete a specific generation",
+            Description = "Deletes a specific generation with the given id"
+        )]
+        public async Task<IActionResult> Delete(int plantId, int generationId)
+        {
+            try
+            {
+                var plant = await _plantService.GetById(plantId);
+                var generation = await _generationService.GetById(plantId, generationId);
+                await _generationService.Delete(generation);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+
+        [HttpGet("/api/plant/generations-last-12-months")]
         [SwaggerResponse(
             statusCode: StatusCodes.Status200OK,
-            description: "Success"
+            description: "Success",
+            type: typeof(IEnumerable<ReadMonthGeneration>)
         )]
         [SwaggerResponse(
             statusCode: StatusCodes.Status401Unauthorized,
@@ -83,7 +215,9 @@ namespace SolarPlant.API.Controllers
             IEnumerable<String> months = Enumerable
                 .Range(0, 12)
                 .Select(i => DateTimeOffset.Now.AddMonths(-i).ToString("MM/yy"));
-            IEnumerable<Object> generations = await _generationService.GetGenerationsByMonth(months);
+            IEnumerable<ReadMonthGeneration> generations = await _generationService.GetByMonth(
+                months
+            );
             return Ok(generations);
         }
     }

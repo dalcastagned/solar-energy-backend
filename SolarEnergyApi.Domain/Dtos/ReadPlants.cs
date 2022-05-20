@@ -15,7 +15,7 @@ namespace SolarEnergyApi.Domain.Dtos
             HasNextPage = plants.HasNextPage;
             IsFirstPage = plants.IsFirstPage;
             IsLastPage = plants.IsLastPage;
-            Plants = plants.Items.ToList();
+            Plants = plants.Items.Select(p => new ReadPlant(p)).ToList();
         }
         public int PageCount { get; set; }
         public int TotalItemCount { get; set; }
@@ -25,6 +25,6 @@ namespace SolarEnergyApi.Domain.Dtos
         public bool HasNextPage { get; set; }
         public bool IsFirstPage { get; set; }
         public bool IsLastPage { get; set; }
-        public List<Plant> Plants { get; set; }
+        public List<ReadPlant> Plants { get; set; }
     }
 }

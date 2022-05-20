@@ -48,7 +48,6 @@ namespace SolarEnergyApi.Domain.Services
         public async Task<Plant?> GetById(int id)
         {
             return await _context.Plants
-                .Include(plant => plant.Generations)
                 .SingleOrDefaultAsync(p => p.Id == id);
         }
 

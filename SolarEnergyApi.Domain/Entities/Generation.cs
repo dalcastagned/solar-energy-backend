@@ -25,5 +25,11 @@ namespace SolarEnergyApi.Domain.Entities
         [JsonIgnore]
         [Required]
         public int IdPlant { get; set; }
+
+        public void Update(DateTime date, double generatePower)
+        {
+            Date = date;
+            GeneratePower = generatePower;
+        }
     }
 }

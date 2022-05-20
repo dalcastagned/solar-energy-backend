@@ -49,7 +49,7 @@ namespace SolarPlant.API.Controllers
         [SwaggerResponse(
             statusCode: StatusCodes.Status200OK,
             description: "Success",
-            type: typeof(Plant)
+            type: typeof(ReadPlant)
         )]
         [SwaggerResponse(
             statusCode: StatusCodes.Status401Unauthorized,
@@ -73,7 +73,7 @@ namespace SolarPlant.API.Controllers
             try
             {
                 var plant = await _plantService.GetById(id);
-                return Ok(plant);
+                return Ok(new ReadPlant(plant));
             }
             catch (KeyNotFoundException ex)
             {
