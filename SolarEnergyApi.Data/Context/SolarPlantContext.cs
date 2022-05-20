@@ -72,7 +72,26 @@ namespace SolarEnergyApi.Data.Context
         {
             builder
                 .Entity<Role>()
-                .HasData(new Role() { Id = 1, Name = "suport", NormalizedName = "SUPORT" });
+                .HasData(
+                    new Role()
+                    {
+                        Id = 1,
+                        Name = "admin",
+                        NormalizedName = "ADMIN"
+                    },
+                    new Role()
+                    {
+                        Id = 2,
+                        Name = "employee",
+                        NormalizedName = "EMPLOYEE"
+                    },
+                    new Role()
+                    {
+                        Id = 3,
+                        Name = "visitor",
+                        NormalizedName = "VISITOR"
+                    }
+                );
         }
 
         private void SeedUserRoles(ModelBuilder builder)
@@ -94,7 +113,11 @@ namespace SolarEnergyApi.Data.Context
                         .HasForeignKey(ur => ur.UserId)
                         .IsRequired();
 
-                    userRole.HasData(new UserRole() { RoleId = 1, UserId = 1 });
+                    userRole.HasData(
+                        new UserRole() { RoleId = 1, UserId = 1 },
+                        new UserRole() { RoleId = 2, UserId = 1 },
+                        new UserRole() { RoleId = 3, UserId = 1 }
+                    );
                 }
             );
         }
