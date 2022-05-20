@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SolarEnergyApi.Data.Context;
 
@@ -11,9 +12,10 @@ using SolarEnergyApi.Data.Context;
 namespace SolarEnergyApi.Data.Migrations
 {
     [DbContext(typeof(SolarPlantContext))]
-    partial class SolarPlantContextModelSnapshot : ModelSnapshot
+    [Migration("20220519223922_ChangeTypePasswordExpired")]
+    partial class ChangeTypePasswordExpired
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,15 +196,6 @@ namespace SolarEnergyApi.Data.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ConcurrencyStamp = "a04f0ba7-6230-49d4-8c40-c6a6d744b34d",
-                            Name = "suport",
-                            NormalizedName = "SUPORT"
-                        });
                 });
 
             modelBuilder.Entity("SolarEnergyApi.Domain.Entities.User", b =>
@@ -275,24 +268,6 @@ namespace SolarEnergyApi.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "1050eff9-d1cf-41e2-aab8-34cb44421f07",
-                            Email = "suporte@suporte.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "SUPORTE@SUPORTE.COM",
-                            NormalizedUserName = "SUPORTE@SUPORTE.COM",
-                            PasswordExpired = "18/05/2022",
-                            PasswordHash = "AQAAAAEAACcQAAAAECeHuGWulLRI55a4heK4SrZ41NziYj6EH5x8HPuXdbv2/j4OuLodptWmRbrQqRlkFg==",
-                            PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false,
-                            UserName = "suporte@suporte.com"
-                        });
                 });
 
             modelBuilder.Entity("SolarEnergyApi.Domain.Entities.UserRole", b =>
@@ -308,13 +283,6 @@ namespace SolarEnergyApi.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = 1,
-                            RoleId = 1
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

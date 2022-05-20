@@ -58,7 +58,8 @@ namespace SolarPlants.API.Controllers
                 Email = model.Email,
                 EmailConfirmed = true,
             };
-
+            user.PasswordExpired = DateTime.Now.AddMonths(6).ToShortDateString();
+            
             var returnUser = new ReadUser(model.Email);
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -89,6 +90,11 @@ namespace SolarPlants.API.Controllers
 
             if (result.Succeeded)
             {
+                if (DateTime.Now > Convert.ToDateTime(user.PasswordExpired))
+                {
+                    return Unauthorized("Password expired");
+                }
+                
                 var appUser = await _userManager.Users.FirstOrDefaultAsync(
                     u => u.NormalizedEmail == login.Email.ToUpper()
                 );
@@ -96,7 +102,7 @@ namespace SolarPlants.API.Controllers
 
                 return Ok(new { token = GenerateJwt(appUser).Result, user = returnUser });
             }
-            return Unauthorized();
+            return Unauthorized("User or password incorrect");
         }
 
         [HttpPost("reset-password")]
@@ -115,6 +121,7 @@ namespace SolarPlants.API.Controllers
         public async Task<IActionResult> ResetPassword(string user, string oldPassword, string newPassword)
         {
             var userToReset = await _userManager.FindByEmailAsync(user);
+            userToReset.PasswordExpired = DateTime.Now.AddMonths(6).ToShortDateString();
             var result = await _userManager.ChangePasswordAsync(userToReset, oldPassword, newPassword);
 
             if (result.Succeeded)
