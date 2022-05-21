@@ -1,3 +1,4 @@
+using Canducci.Pagination;
 using Microsoft.EntityFrameworkCore;
 using SolarEnergyApi.Data.Context;
 using SolarEnergyApi.Domain.Dtos;
@@ -21,15 +22,20 @@ namespace SolarEnergyApi.Domain.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ReadGeneration>> GetAll(int plantId)
+        public async Task<ReadGenerations> GetAll(int page, int limit, int plantId, DateTime? startDate, DateTime? endDate)
         {
-            var generations = await _context.Generations
+            if (page == 0)
+                page = 1;
+            if (limit == 0)
+                limit = int.MaxValue;
+
+            var generation = await _context.Generations
                 .Where(g => g.IdPlant == plantId)
-                .ToListAsync();
-            return generations
-                .Select(g => new ReadGeneration(g))
-                .OrderByDescending(g => g.Id)
-                .ToList();
+                .Where(x => startDate == null || x.Date >= startDate)
+                .Where(x => endDate == null || x.Date <= endDate)
+                .ToPaginatedRestAsync(page, limit);
+
+            return new ReadGenerations(generation);
         }
 
         public async Task<Generation> GetById(int plantId, int generationId)

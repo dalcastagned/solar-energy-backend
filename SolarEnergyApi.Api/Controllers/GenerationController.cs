@@ -54,7 +54,7 @@ namespace SolarPlant.API.Controllers
         [SwaggerResponse(
             statusCode: StatusCodes.Status200OK,
             description: "Success",
-            type: typeof(IEnumerable<ReadGeneration>)
+            type: typeof(ReadGenerations)
         )]
         [SwaggerResponse(
             statusCode: StatusCodes.Status401Unauthorized,
@@ -70,12 +70,12 @@ namespace SolarPlant.API.Controllers
             Summary = "Get generations by plant id",
             Description = "Get generations by plant id"
         )]
-        public async Task<IActionResult> Get(int plantId)
+        public async Task<IActionResult> Get(int plantId, int page, int limit, DateTime? startDate, DateTime? endDate)
         {
             try
             {
                 var plant = await _plantService.GetById(plantId);
-                var generations = await _generationService.GetAll(plantId);
+                var generations = await _generationService.GetAll(page, limit, plantId, startDate, endDate);
                 return Ok(generations);
             }
             catch (KeyNotFoundException ex)

@@ -16,8 +16,8 @@ namespace SolarEnergyApi.Domain.Services
         public async Task Add(Generation generation) =>
             await _generationRepository.Add(generation);
 
-        public async Task<IEnumerable<ReadGeneration>> GetAll(int plantId) =>
-            await _generationRepository.GetAll(plantId);
+        public async Task<ReadGenerations> GetAll(int page, int limit, int plantId, DateTime? startDate, DateTime? endDate) =>
+            await _generationRepository.GetAll(page, limit, plantId, startDate, endDate);
 
         public async Task<Generation> GetById(int plantId, int generationId)
         {
