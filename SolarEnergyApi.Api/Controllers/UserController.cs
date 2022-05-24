@@ -2,15 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using SolarEnergyApi.Api.Utils;
 using SolarEnergyApi.Domain.Dtos;
 using SolarEnergyApi.Domain.Entities;
+using SolarEnergyApi.Domain.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SolarPlants.API.Controllers
 {
@@ -18,19 +14,19 @@ namespace SolarPlants.API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
 
         public UserController(
+            IUserService userService,
             IConfiguration configuration,
-            UserManager<User> userManager,
-            SignInManager<User> signInManager
+            UserManager<User> userManager
         )
         {
+            _userService = userService;
             _configuration = configuration;
             _userManager = userManager;
-            _signInManager = signInManager;
         }
 
         [HttpGet]
@@ -57,14 +53,15 @@ namespace SolarPlants.API.Controllers
                 UserName = model.Email,
                 Email = model.Email,
                 EmailConfirmed = true,
+                PasswordExpired = DateTime.Now.AddMonths(6).ToShortDateString()
             };
-            user.PasswordExpired = DateTime.Now.AddMonths(6).ToShortDateString();
             
             var returnUser = new ReadUser(model.Email);
-
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userService.SignUp(user, model.Password);
+            
             if (result.Succeeded)
             {
+                await _userService.AddToRole(user, "visitor");
                 return Created(nameof(GetUser), returnUser);
             }
             return BadRequest(result.Errors);
@@ -85,8 +82,8 @@ namespace SolarPlants.API.Controllers
         [SwaggerOperation(Summary = "Login")]
         public async Task<IActionResult> Login(Login login)
         {
-            var user = await _userManager.FindByEmailAsync(login.Email);
-            var result = await _signInManager.CheckPasswordSignInAsync(user, login.Password, false);
+            var user = await _userService.GetUser(login.Email);
+            var result = await _userService.Login(user, login.Password);
 
             if (result.Succeeded)
             {
@@ -94,13 +91,7 @@ namespace SolarPlants.API.Controllers
                 {
                     return Unauthorized("Password expired");
                 }
-                
-                var appUser = await _userManager.Users.FirstOrDefaultAsync(
-                    u => u.NormalizedEmail == login.Email.ToUpper()
-                );
-                var returnUser = new ReadUser(login.Email);
-
-                return Ok(new { token = GenerateJwt(appUser).Result, user = returnUser });
+                return Ok(new { token = new GenerateJWT().Generate(user, _configuration, _userManager).Result, user = login.Email });
             }
             return Unauthorized("User or password incorrect");
         }
@@ -120,46 +111,15 @@ namespace SolarPlants.API.Controllers
         [SwaggerOperation(Summary = "Reset Password")]
         public async Task<IActionResult> ResetPassword(string user, string oldPassword, string newPassword)
         {
-            var userToReset = await _userManager.FindByEmailAsync(user);
+            var userToReset = await _userService.GetUser(user);
             userToReset.PasswordExpired = DateTime.Now.AddMonths(6).ToShortDateString();
-            var result = await _userManager.ChangePasswordAsync(userToReset, oldPassword, newPassword);
+            var result = await _userService.ChangePassword(userToReset, oldPassword, newPassword);
 
             if (result.Succeeded)
             {
                 return Ok();
             }
             return BadRequest(result.Errors);
-        }
-
-        private async Task<string> GenerateJwt(User appUser)
-        {
-            var key = new SymmetricSecurityKey(
-                Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Token").Value)
-            );
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-            var roles = await _userManager.GetRolesAsync(appUser);
-
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Email, appUser.Email),
-                new Claim(ClaimTypes.NameIdentifier, appUser.Id.ToString()),
-            };
-
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(1),
-                SigningCredentials = creds
-            };
-
-            return new JwtSecurityTokenHandler().WriteToken(
-                new JwtSecurityTokenHandler().CreateToken(tokenDescriptor)
-            );
         }
     }
 }

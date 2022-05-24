@@ -77,8 +77,11 @@ builder.Services.AddMvc(
 
 builder.Services.AddScoped<IPlantRepository, PlantRepository>();
 builder.Services.AddScoped<IGenerationRepository, GenerationRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IGenerationService, GenerationService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddCors(
     options =>
