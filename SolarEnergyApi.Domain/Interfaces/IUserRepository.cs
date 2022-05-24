@@ -10,6 +10,6 @@ namespace SolarEnergyApi.Domain.Interfaces
         Task<User> GetUser(string email);
         Task<SignInResult> Login(User user, string password);
         Task<IdentityResult> ChangePassword(User user, string oldPassword, string newPassword);
-        Task AddToRole(User user, string role);
+        Task<IdentityResult> AddToRole(User user, string role);
     }
 }

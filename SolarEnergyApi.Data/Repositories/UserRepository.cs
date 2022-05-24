@@ -35,6 +35,6 @@ namespace SolarEnergyApi.Domain.Services
 
         public async Task<IdentityResult> ChangePassword(User user, string currentPassword, string newPassword) => await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
 
-        public async Task AddToRole(User user, string role) => await _userManager.AddToRoleAsync(user, role);
+        public async Task<IdentityResult> AddToRole(User user, string role) => await _userManager.AddToRoleAsync(user, role);
     }
 }

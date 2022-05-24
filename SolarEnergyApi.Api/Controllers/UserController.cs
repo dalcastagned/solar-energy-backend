@@ -29,13 +29,6 @@ namespace SolarPlants.API.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public async Task<IActionResult> GetUser(ReadUser user)
-        {
-            return Ok(user);
-        }
-
         [HttpPost("signup")]
         [AllowAnonymous]
         [SwaggerResponse(statusCode: StatusCodes.Status201Created, description: "Created")]
@@ -55,14 +48,19 @@ namespace SolarPlants.API.Controllers
                 EmailConfirmed = true,
                 PasswordExpired = DateTime.Now.AddMonths(6).ToShortDateString()
             };
-            
-            var returnUser = new ReadUser(model.Email);
             var result = await _userService.SignUp(user, model.Password);
             
             if (result.Succeeded)
             {
-                await _userService.AddToRole(user, "visitor");
-                return Created(nameof(GetUser), returnUser);
+                try
+                {
+                    await _userService.AddToRole(user, "visitor");
+                    return Ok(new { user = user.Email, role = "visitor" });
+                }
+                catch
+                {
+                    return Ok(new { user = user.Email});
+                }
             }
             return BadRequest(result.Errors);
         }
