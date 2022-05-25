@@ -170,5 +170,29 @@ namespace SolarPlants.API.Controllers
         {
             return Ok(await _userService.GetAllRoles());
         }
+
+        [HttpPost("user-roles")]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, description: "Success")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status401Unauthorized,
+            description: "Unauthorized"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
+        [SwaggerOperation(Summary = "Add roles to user")]
+        public async Task<IActionResult> AddUserToRole(AddUserRoles model)
+        {
+            var user = await _userService.GetUser(model.Email);
+            var result = await _userService.AddToRoles(user, model.Roles);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+            return BadRequest(result.Errors);
+        }
     }
 }

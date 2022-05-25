@@ -13,5 +13,6 @@ namespace SolarEnergyApi.Domain.Interfaces
         Task<IdentityResult> AddToRole(User user, string role);
         Task<IEnumerable<ReadUser>> GetAllUsers();
         Task<IEnumerable<ReadRole>> GetAllRoles();
+        Task<IdentityResult> AddToRoles(User user, IEnumerable<string> roles);
     }
 }
