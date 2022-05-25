@@ -129,11 +129,11 @@ namespace SolarPlants.API.Controllers
             return BadRequest(result.Errors);
         }
 
-        [HttpGet("get-users")]
+        [HttpGet("users")]
         [SwaggerResponse(
             statusCode: StatusCodes.Status200OK,
             description: "Success",
-            type: typeof(ReadUser)
+            type: typeof(IEnumerable<ReadUser>)
         )]
         [SwaggerResponse(
             statusCode: StatusCodes.Status401Unauthorized,
@@ -147,8 +147,28 @@ namespace SolarPlants.API.Controllers
         [SwaggerOperation(Summary = "Return list of users with roles")]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _userService.GetAllUsers();
-            return Ok(users);
+            return Ok(await _userService.GetAllUsers());
+        }
+
+        [HttpGet("roles")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status200OK,
+            description: "Success",
+            type: typeof(IEnumerable<ReadRole>)
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status401Unauthorized,
+            description: "Unauthorized"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
+        [SwaggerOperation(Summary = "Return list of roles")]
+        public async Task<IActionResult> GetAllRoles()
+        {
+            return Ok(await _userService.GetAllRoles());
         }
     }
 }

@@ -13,15 +13,18 @@ namespace SolarEnergyApi.Domain.Services
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<User> _userManager;
+        private readonly RoleManager<Role> _roleManager;
         private readonly SignInManager<User> _signInManager;
 
         public UserRepository(
             IConfiguration configuration,
             UserManager<User> userManager,
-            SignInManager<User> signInManager)
+            RoleManager<Role> roleManager,
+        SignInManager<User> signInManager)
         {
             _configuration = configuration;
             _userManager = userManager;
+            _roleManager = roleManager;
             _signInManager = signInManager;
         }
 
@@ -38,5 +41,7 @@ namespace SolarEnergyApi.Domain.Services
         public async Task<IdentityResult> AddToRole(User user, string role) => await _userManager.AddToRoleAsync(user, role);
 
         public async Task<IEnumerable<ReadUser>> GetAllUsers() => await _userManager.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).Select(u => new ReadUser(u)).ToListAsync();
+
+        public async Task<IEnumerable<ReadRole>> GetAllRoles() => await _roleManager.Roles.Select(r => new ReadRole(r)).ToListAsync();
     }
 }
