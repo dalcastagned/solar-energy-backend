@@ -31,5 +31,6 @@ namespace SolarEnergyApi.Domain.Services
 
         public async Task<IEnumerable<ReadRole>> GetAllRoles() => await _userRepository.GetAllRoles();
         public async Task<IdentityResult> AddToRoles(User user, IEnumerable<string> roles) => await _userRepository.AddToRoles(user, roles);
+        public async Task<IEnumerable<String>> GetUserRoles(User user) => await _userRepository.GetUserRoles(user);
     }
 }

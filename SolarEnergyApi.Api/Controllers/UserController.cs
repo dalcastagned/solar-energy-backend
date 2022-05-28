@@ -80,29 +80,41 @@ namespace SolarPlants.API.Controllers
         [SwaggerOperation(Summary = "Login")]
         public async Task<IActionResult> Login(Login login)
         {
-            var user = await _userService.GetUser(login.Email);
-            var result = await _userService.Login(user, login.Password);
-
-            if (result.Succeeded)
+            try
             {
-                if (DateTime.Now > Convert.ToDateTime(user.PasswordExpired))
+                var user = await _userService.GetUser(login.Email);
+                var result = await _userService.Login(user, login.Password);
+
+                if (result.Succeeded)
                 {
-                    return Unauthorized("Password expired");
-                }
-                return Ok(
-                    new
+                    if (DateTime.Now > Convert.ToDateTime(user.PasswordExpired))
                     {
-                        token = new GenerateJWT()
-                            .Generate(user, _configuration, _userManager)
-                            .Result,
-                        user = login.Email
+                        return Unauthorized("Password expired");
                     }
-                );
+                    return Ok(
+                        new
+                        {
+                            token = new GenerateJWT()
+                                .Generate(user, _configuration, _userManager)
+                                .Result,
+                            user = login.Email,
+                            roles = await _userService.GetUserRoles(user)
+                        }
+                    );
+                }
+                return Unauthorized("User or password incorrect");
             }
-            return Unauthorized("User or password incorrect");
+            catch(Exception ex)
+            {
+                if (ex.Message.Contains("Object reference not set to an instance of an object."))
+                {
+                    return Unauthorized("User or password incorrect");
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
-        [HttpPost("reset-password")]
+        [HttpPost("reset-password/{user}")]
         [AllowAnonymous]
         [SwaggerResponse(statusCode: StatusCodes.Status200OK, description: "Success")]
         [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, description: "Bad Request")]
@@ -112,15 +124,15 @@ namespace SolarPlants.API.Controllers
         )]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
         [SwaggerOperation(Summary = "Reset Password")]
-        public async Task<IActionResult> ResetPassword(
-            string user,
-            string oldPassword,
-            string newPassword
-        )
+        public async Task<IActionResult> ResetPassword(string user, ResetPassword model)
         {
             var userToReset = await _userService.GetUser(user);
             userToReset.PasswordExpired = DateTime.Now.AddMonths(6).ToShortDateString();
-            var result = await _userService.ChangePassword(userToReset, oldPassword, newPassword);
+            var result = await _userService.ChangePassword(
+                userToReset,
+                model.CurrentPassword,
+                model.NewPassword
+            );
 
             if (result.Succeeded)
             {
