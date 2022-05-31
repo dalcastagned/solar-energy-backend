@@ -26,8 +26,25 @@ namespace SolarEnergyApi.Data.Context
         {
             base.OnModelCreating(builder);
             this.SeedUsers(builder);
-            this.SeedRoles(builder);
-            this.SeedUserRoles(builder);
+            
+            builder.Entity<UserRole>(
+                userRole =>
+                {
+                    userRole.HasKey(ur => new { ur.UserId, ur.RoleId });
+
+                    userRole
+                        .HasOne(ur => ur.Role)
+                        .WithMany(r => r.UserRoles)
+                        .HasForeignKey(ur => ur.RoleId)
+                        .IsRequired();
+
+                    userRole
+                        .HasOne(ur => ur.User)
+                        .WithMany(r => r.UserRoles)
+                        .HasForeignKey(ur => ur.UserId)
+                        .IsRequired();
+                }
+            );
 
             builder.Entity<Plant>(
                 e =>
@@ -66,60 +83,6 @@ namespace SolarEnergyApi.Data.Context
             user.PasswordExpired = DateTime.Now.AddDays(-1).ToShortDateString();
 
             builder.Entity<User>().HasData(user);
-        }
-
-        private void SeedRoles(ModelBuilder builder)
-        {
-            builder
-                .Entity<Role>()
-                .HasData(
-                    new Role()
-                    {
-                        Id = 1,
-                        Name = "admin",
-                        NormalizedName = "ADMIN"
-                    },
-                    new Role()
-                    {
-                        Id = 2,
-                        Name = "employee",
-                        NormalizedName = "EMPLOYEE"
-                    },
-                    new Role()
-                    {
-                        Id = 3,
-                        Name = "visitor",
-                        NormalizedName = "VISITOR"
-                    }
-                );
-        }
-
-        private void SeedUserRoles(ModelBuilder builder)
-        {
-            builder.Entity<UserRole>(
-                userRole =>
-                {
-                    userRole.HasKey(ur => new { ur.UserId, ur.RoleId });
-
-                    userRole
-                        .HasOne(ur => ur.Role)
-                        .WithMany(r => r.UserRoles)
-                        .HasForeignKey(ur => ur.RoleId)
-                        .IsRequired();
-
-                    userRole
-                        .HasOne(ur => ur.User)
-                        .WithMany(r => r.UserRoles)
-                        .HasForeignKey(ur => ur.UserId)
-                        .IsRequired();
-
-                    userRole.HasData(
-                        new UserRole() { RoleId = 1, UserId = 1 },
-                        new UserRole() { RoleId = 2, UserId = 1 },
-                        new UserRole() { RoleId = 3, UserId = 1 }
-                    );
-                }
-            );
         }
     }
 }

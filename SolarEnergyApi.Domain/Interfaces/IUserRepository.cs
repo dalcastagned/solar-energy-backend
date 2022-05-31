@@ -10,10 +10,5 @@ namespace SolarEnergyApi.Domain.Interfaces
         Task<User> GetUser(string email);
         Task<SignInResult> Login(User user, string password);
         Task<IdentityResult> ChangePassword(User user, string oldPassword, string newPassword);
-        Task<IdentityResult> AddToRole(User user, string role);
-        Task<IEnumerable<ReadUser>> GetAllUsers();
-        Task<IEnumerable<ReadRole>> GetAllRoles();
-        Task<IdentityResult> AddToRoles(User user, IEnumerable<string> roles);
-        Task<IEnumerable<String>> GetUserRoles(User user);
     }
 }

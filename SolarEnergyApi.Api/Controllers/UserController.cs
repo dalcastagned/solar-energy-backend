@@ -52,15 +52,7 @@ namespace SolarPlants.API.Controllers
 
             if (result.Succeeded)
             {
-                try
-                {
-                    await _userService.AddToRole(user, "visitor");
-                    return Ok(new { user = user.Email, role = "visitor" });
-                }
-                catch
-                {
-                    return Ok(new { user = user.Email });
-                }
+                return Ok(new { user = user.Email });
             }
             return BadRequest(result.Errors);
         }
@@ -97,14 +89,13 @@ namespace SolarPlants.API.Controllers
                             token = new GenerateJWT()
                                 .Generate(user, _configuration, _userManager)
                                 .Result,
-                            user = login.Email,
-                            roles = await _userService.GetUserRoles(user)
+                            user = login.Email
                         }
                     );
                 }
                 return Unauthorized("User or password incorrect");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (ex.Message.Contains("Object reference not set to an instance of an object."))
                 {
@@ -133,72 +124,6 @@ namespace SolarPlants.API.Controllers
                 model.CurrentPassword,
                 model.NewPassword
             );
-
-            if (result.Succeeded)
-            {
-                return Ok();
-            }
-            return BadRequest(result.Errors);
-        }
-
-        [HttpGet("users")]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status200OK,
-            description: "Success",
-            type: typeof(IEnumerable<ReadUser>)
-        )]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status401Unauthorized,
-            description: "Unauthorized"
-        )]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status500InternalServerError,
-            description: "Server Error"
-        )]
-        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-        [SwaggerOperation(Summary = "Return list of users with roles")]
-        public async Task<IActionResult> GetUsers()
-        {
-            return Ok(await _userService.GetAllUsers());
-        }
-
-        [HttpGet("roles")]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status200OK,
-            description: "Success",
-            type: typeof(IEnumerable<ReadRole>)
-        )]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status401Unauthorized,
-            description: "Unauthorized"
-        )]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status500InternalServerError,
-            description: "Server Error"
-        )]
-        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-        [SwaggerOperation(Summary = "Return list of roles")]
-        public async Task<IActionResult> GetAllRoles()
-        {
-            return Ok(await _userService.GetAllRoles());
-        }
-
-        [HttpPost("user-roles")]
-        [SwaggerResponse(statusCode: StatusCodes.Status200OK, description: "Success")]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status401Unauthorized,
-            description: "Unauthorized"
-        )]
-        [SwaggerResponse(
-            statusCode: StatusCodes.Status500InternalServerError,
-            description: "Server Error"
-        )]
-        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
-        [SwaggerOperation(Summary = "Add roles to user")]
-        public async Task<IActionResult> AddUserToRole(AddUserRoles model)
-        {
-            var user = await _userService.GetUser(model.Email);
-            var result = await _userService.AddToRoles(user, model.Roles);
 
             if (result.Succeeded)
             {
