@@ -30,6 +30,7 @@ namespace SolarEnergyApi.Domain.Services
                 limit = int.MaxValue;
 
             var generation = await _context.Generations
+                .OrderByDescending(g => g.Id)
                 .Where(g => g.IdPlant == plantId)
                 .Where(x => startDate == null || x.Date >= startDate)
                 .Where(x => endDate == null || x.Date <= endDate)

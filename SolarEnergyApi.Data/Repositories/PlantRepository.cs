@@ -4,6 +4,7 @@ using SolarEnergyApi.Data.Context;
 using SolarEnergyApi.Domain.Dtos;
 using SolarEnergyApi.Domain.Entities;
 using SolarEnergyApi.Domain.Interfaces;
+using System.Linq;
 
 namespace SolarEnergyApi.Domain.Services
 {
@@ -31,6 +32,7 @@ namespace SolarEnergyApi.Domain.Services
 
             var plants = await _context.Plants
                 .Include(x => x.Generations)
+                .OrderByDescending(x => x.Id)
                 .Where(x => active == null || x.Active == active)
                 .Where(
                     x =>
