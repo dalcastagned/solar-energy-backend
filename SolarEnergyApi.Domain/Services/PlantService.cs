@@ -27,5 +27,7 @@ namespace SolarEnergyApi.Domain.Services
         public async Task Delete(Plant plant) => await _plantRepository.Delete(plant);
 
         public async Task Update() => await _plantRepository.Update();
+
+        public async Task<ReadPlantsCounts> GetPlantsCounts() => await _plantRepository.GetPlantsCounts();
     }
 }

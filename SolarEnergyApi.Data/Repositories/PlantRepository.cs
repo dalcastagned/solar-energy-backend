@@ -63,5 +63,13 @@ namespace SolarEnergyApi.Domain.Services
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<ReadPlantsCounts> GetPlantsCounts()
+        {
+            var activePlants = await _context.Plants.Where(x => x.Active).CountAsync();
+            var inactivePlants = await _context.Plants.Where(x => x.Active == false).CountAsync();
+
+            return new ReadPlantsCounts(activePlants, inactivePlants);
+        }
     }
 }

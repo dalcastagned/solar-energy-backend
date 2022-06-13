@@ -11,5 +11,6 @@ namespace SolarEnergyApi.Domain.Interfaces
         Task Add(Plant plant);
         Task Update();
         Task Delete(Plant plant);
+        Task<ReadPlantsCounts> GetPlantsCounts();
     }
 }

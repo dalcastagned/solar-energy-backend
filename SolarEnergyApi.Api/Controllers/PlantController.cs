@@ -185,5 +185,30 @@ namespace SolarPlant.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [HttpGet("counts")]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status200OK,
+            description: "Success",
+            type: typeof(ReadPlantsCounts)
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status401Unauthorized,
+            description: "Unauthorized"
+        )]
+        [SwaggerResponse(
+            statusCode: StatusCodes.Status500InternalServerError,
+            description: "Server Error"
+        )]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
+        [SwaggerOperation(
+            Summary = "Returns the count of active plants and inactive plants",
+            Description = "Returns the count of active plants and inactive plants"
+        )]
+        public async Task<IActionResult> GetCounts()
+        {
+            var counts = await _plantService.GetPlantsCounts();
+            return Ok(counts);
+        }
     }
 }
