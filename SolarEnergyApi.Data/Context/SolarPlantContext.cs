@@ -17,7 +17,9 @@ namespace SolarEnergyApi.Data.Context
               IdentityUserToken<int>
           >
     {
-        public SolarPlantContext(DbContextOptions<SolarPlantContext> options) : base(options) { }
+        public SolarPlantContext(DbContextOptions<SolarPlantContext> options) : base(options) {
+            this.Database.EnsureCreated();
+        }
 
         public DbSet<Plant> Plants { get; set; }
         public DbSet<Generation> Generations { get; set; }

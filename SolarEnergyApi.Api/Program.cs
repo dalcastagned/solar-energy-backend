@@ -97,6 +97,7 @@ builder.Services.AddCors(
 );
 
 builder.Services.AddControllers();
+builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(80); });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

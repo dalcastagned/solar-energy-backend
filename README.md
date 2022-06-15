@@ -9,16 +9,10 @@
 <p align="left">API para CRUD de plantas solares e gerações. Criada para reforçar o aprendizado com a estrutura .Net e o frontend pode ser encontrado nesse link: <a href="https://github.com/dalcastagned/solar-energy-frontend">https://github.com/dalcastagned/solar-energy-frontend</a> 
 </p>
 
-## Instalação
+## Instalação e Inicialização
 
 ```sh
-git clone
-```
-
-## Inicialização
-
-```sh
-Abra a solução no visual studio e rode a partir do atalho CTRL+F5
+docker-compose up --build
 ```
 
 ## Uso
