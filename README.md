@@ -18,7 +18,7 @@ docker-compose up --build
 ## Uso
 
 ```sh
-Abra https://localhost:7140/swagger para visualizar no seu browser
+Abra http://localhost:7140/swagger para visualizar no seu browser
 ```
 
 ## 🛠 Tecnologias
